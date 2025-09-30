@@ -14,17 +14,17 @@
     <meta property="og:description" content="Clone Netflix - Regardez vos films et séries préférés" />
     <meta property="og:type" content="website" />
     
-    <!-- Content Security Policy pour Stripe - Mode développement avec blob: autorisé -->
+    <!-- Content Security Policy pour Stripe et production -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self' https://js.stripe.com https://m.stripe.network;
       script-src 'self' https://js.stripe.com https://m.stripe.network 'unsafe-inline' 'unsafe-eval' blob:;
       script-src-elem 'self' https://js.stripe.com https://m.stripe.network blob:;
       style-src 'self' https://js.stripe.com https://m.stripe.network 'unsafe-inline';
       style-src-elem 'self' https://js.stripe.com https://m.stripe.network 'unsafe-inline';
-      connect-src 'self' https://api.stripe.com https://m.stripe.network http://localhost:5000 http://localhost:8080;
+      connect-src 'self' https://api.stripe.com https://m.stripe.network https://netflix-clone-wj56.onrender.com https://www.google-analytics.com;
       frame-src 'self' https://js.stripe.com https://m.stripe.network;
-      img-src 'self' http://localhost:5000 http://localhost:8080 https://*.stripe.com https://m.stripe.network data: blob:;
-      media-src 'self' http://localhost:5000 http://localhost:8080 blob: data:;
+      img-src 'self' https://netflix-clone-wj56.onrender.com https://*.stripe.com https://m.stripe.network data: blob:;
+      media-src 'self' https://netflix-clone-wj56.onrender.com blob: data:;
       font-src 'self' https://fonts.gstatic.com;
       object-src 'none';
       base-uri 'self';

@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[url('/images/netflix-bg.jpg')] bg-cover bg-center opacity-20" />
+      <div className="absolute inset-0 bg-gradient-to-br from-netflix-red/10 via-black/80 to-netflix-gray/20 opacity-40" />
       
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
