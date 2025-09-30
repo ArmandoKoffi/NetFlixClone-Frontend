@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,16 +6,62 @@ import { Play, X, Plus } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { NetflixButton } from '@/components/ui/netflix-button';
 import { RootState } from '@/store/store';
+import { favoritesService } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+
+interface FavoriteMovie {
+  _id: string;
+  title: string;
+  image: string;
+  year: number;
+  rating: string;
+  duration: string;
+}
 
 const MyList = () => {
   const { movies } = useSelector((state: RootState) => state.movies);
-  const [myList, setMyList] = useState<number[]>([1, 3, 5]); // Simulation d'une liste
+  const [favorites, setFavorites] = useState<FavoriteMovie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const removeFromList = (movieId: number) => {
-    setMyList(prev => prev.filter(id => id !== movieId));
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
+  const loadFavorites = async () => {
+    try {
+      setLoading(true);
+      const userFavorites = await favoritesService.getFavorites();
+      setFavorites(userFavorites);
+    } catch (error) {
+      console.error('Erreur lors du chargement des favoris:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger vos favoris",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const myListMovies = movies.filter(movie => myList.includes(movie.id));
+  const removeFromList = async (movieId: string) => {
+    try {
+      await favoritesService.removeFromFavorites(movieId);
+      setFavorites(prev => prev.filter(movie => movie._id !== movieId));
+      toast({
+        title: "Succès",
+        description: "Film retiré de vos favoris",
+      });
+    } catch (error) {
+      console.error('Erreur lors du retrait des favoris:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de retirer le film des favoris",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,10 +77,15 @@ const MyList = () => {
             Ma liste
           </h1>
           <p className="text-white/80 mb-8">
-            {myListMovies.length} {myListMovies.length === 1 ? 'titre' : 'titres'}
+            {favorites.length} {favorites.length === 1 ? 'titre' : 'titres'}
           </p>
 
-          {myListMovies.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-white/70">Chargement de vos favoris...</p>
+            </div>
+          ) : favorites.length === 0 ? (
             <div className="text-center py-20">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -57,15 +108,15 @@ const MyList = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {myListMovies.map((movie, index) => (
+              {favorites.map((movie, index) => (
                 <motion.div
-                  key={movie.id}
+                  key={movie._id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group relative"
                 >
-                  <Link to={`/movie/${movie.id}`}>
+                  <Link to={`/movie/${movie._id}`}>
                     <div className="relative aspect-video rounded-lg overflow-hidden bg-gradient-card">
                       <img
                         src={movie.image}
@@ -89,7 +140,7 @@ const MyList = () => {
                             <span>{movie.duration}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Link to={`/watch/${movie.id}`}>
+                            <Link to={`/watch/${movie._id}`}>
                               <NetflixButton variant="ghost" size="icon" className="h-8 w-8">
                                 <Play className="h-4 w-4" />
                               </NetflixButton>
@@ -102,7 +153,8 @@ const MyList = () => {
                   
                   {/* Remove Button */}
                   <button
-                    onClick={() => removeFromList(movie.id)}
+                    onClick={() => removeFromList(movie._id)}
+                    title="Retirer des favoris"
                     className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <X className="h-4 w-4" />

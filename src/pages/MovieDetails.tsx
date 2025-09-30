@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Play, Plus, ArrowLeft, Star, Clock, Calendar } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { NetflixButton } from '@/components/ui/netflix-button';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 import { RootState } from '@/store/store';
 
 interface Movie {
@@ -31,7 +32,7 @@ const MovieDetails = () => {
         if (!id) return;
         const data = await moviesService.getMovieById(id);
         const m = data.movie;
-        const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const API = import.meta.env.VITE_API_BASE_URL;
         const adapted: Movie = {
           id: m.id,
           title: m.title,
@@ -136,10 +137,11 @@ const MovieDetails = () => {
                 </NetflixButton>
               </Link>
               
-              <NetflixButton variant="secondary" size="xl">
-                <Plus className="h-6 w-6 mr-2" />
-                Ma liste
-              </NetflixButton>
+              <FavoriteButton 
+                movieId={String(movie.id)} 
+                size="lg" 
+                variant="secondary"
+              />
             </div>
           </motion.div>
         </div>

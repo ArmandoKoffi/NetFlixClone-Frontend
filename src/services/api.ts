@@ -1,6 +1,6 @@
 import { useToast } from '@/hooks/use-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Configuration de base pour les requêtes fetch
 const apiConfig = {
@@ -11,10 +11,10 @@ const apiConfig = {
 };
 
 // Gestionnaire d'erreurs global
-const handleError = (error: any, toast: any) => {
+const handleError = (error: unknown, toast: ReturnType<typeof useToast>['toast']) => {
   console.error('API Error:', error);
   
-  if (error.message === 'Failed to fetch') {
+  if (error instanceof Error && error.message === 'Failed to fetch') {
     toast({
       title: "Erreur de connexion",
       description: "Impossible de se connecter au serveur. Vérifiez votre connexion.",
@@ -23,7 +23,7 @@ const handleError = (error: any, toast: any) => {
     return;
   }
 
-  const message = error.message || 'Une erreur est survenue';
+  const message = error instanceof Error ? error.message : 'Une erreur est survenue';
   toast({
     title: "Erreur",
     description: message,
@@ -224,170 +224,214 @@ export const authService = {
 // Service pour les films/séries (à implémenter plus tard)
 export const moviesService = {
   async getMovies() {
-    try {
-      const token = authService.getToken();
-      const headers: any = { ...apiConfig.headers };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${API_BASE_URL}/movies`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération des films');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    const token = authService.getToken();
+    const headers: Record<string, string> = { ...apiConfig.headers };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
+
+    const response = await fetch(`${API_BASE_URL}/movies`, {
+      method: 'GET',
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la récupération des films');
+    }
+
+    return data;
   },
 
   async getMovieById(id: string) {
-    try {
-      const token = authService.getToken();
-      const headers: any = { ...apiConfig.headers };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${API_BASE_URL}/movies/${id}`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération du film');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    const token = authService.getToken();
+    const headers: Record<string, string> = { ...apiConfig.headers };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
+
+    const response = await fetch(`${API_BASE_URL}/movies/${id}`, {
+      method: 'GET',
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la récupération du film');
+    }
+
+    return data;
   },
   async getStreamingUrl(id: string) {
-    try {
-      // Utiliser l'endpoint sécurisé avec authentification
-      const token = authService.getToken();
-      if (!token) {
-        throw new Error('Authentification requise pour accéder au streaming');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/movies/${id}/watch`, {
-        method: 'GET',
-        headers: {
-          ...apiConfig.headers,
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération de l\'URL de streaming');
-      }
-
-      // Retourner l'URL complète avec le token sécurisé
-      return `${API_BASE_URL}${data.streamingUrl}`;
-    } catch (error) {
-      throw error;
+    // Utiliser l'endpoint sécurisé avec authentification
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise pour accéder au streaming');
     }
+
+    const response = await fetch(`${API_BASE_URL}/movies/${id}/watch`, {
+      method: 'GET',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la récupération de l\'URL de streaming');
+    }
+
+    // Retourner l'URL complète avec le token sécurisé
+    return `${API_BASE_URL}${data.streamingUrl}`;
+  },
+};
+
+// Service pour les favoris
+export const favoritesService = {
+  async getFavorites() {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/favorites`, {
+      method: 'GET',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la récupération des favoris');
+    }
+
+    return data.favorites;
   },
 
-  async resetMovies() {
+  async addToFavorites(movieId: string) {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/favorites/${movieId}`, {
+      method: 'POST',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de l\'ajout aux favoris');
+    }
+
+    return data;
+  },
+
+  async removeFromFavorites(movieId: string) {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/favorites/${movieId}`, {
+      method: 'DELETE',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors du retrait des favoris');
+    }
+
+    return data;
+  },
+
+  async isInFavorites(movieId: string) {
+    const token = authService.getToken();
+    if (!token) {
+      return false;
+    }
+
     try {
-      const response = await fetch(`${API_BASE_URL}/movies/reset`, {
-        method: 'POST',
-        headers: apiConfig.headers,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la réinitialisation des films');
-      }
-
-      return data;
+      const favorites = await this.getFavorites();
+      return favorites.some((favorite: { _id: string }) => favorite._id === movieId);
     } catch (error) {
-      throw error;
+      console.error('Erreur lors de la vérification des favoris:', error);
+      return false;
     }
   },
 };
 
 // Service pour les paiements (à implémenter plus tard)
 export const paymentService = {
-  async createSubscription(paymentData: any) {
-    try {
-      const token = authService.getToken();
-      
-      if (!token) {
-        throw new Error('Authentification requise');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/payments/subscribe`, {
-        method: 'POST',
-        headers: {
-          ...apiConfig.headers,
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(paymentData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la création de l\'abonnement');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+  async createSubscription(paymentData: Record<string, unknown>) {
+    const token = authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentification requise');
     }
+
+    const response = await fetch(`${API_BASE_URL}/payments/subscribe`, {
+      method: 'POST',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(paymentData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la création de l\'abonnement');
+    }
+
+    return data;
   },
   async cancelSubscription() {
-    try {
-      const token = authService.getToken();
-      if (!token) throw new Error('Authentification requise');
-      const response = await fetch(`${API_BASE_URL}/payments/cancel`, {
-        method: 'POST',
-        headers: {
-          ...apiConfig.headers,
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Erreur lors de l\'annulation');
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentification requise');
+    const response = await fetch(`${API_BASE_URL}/payments/cancel`, {
+      method: 'POST',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Erreur lors de l\'annulation');
+    return data;
   },
   async getSubscriptionStatus() {
-    try {
-      const token = authService.getToken();
-      if (!token) throw new Error('Authentification requise');
-      const response = await fetch(`${API_BASE_URL}/payments/status`, {
-        method: 'GET',
-        headers: {
-          ...apiConfig.headers,
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Erreur statut abonnement');
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentification requise');
+    const response = await fetch(`${API_BASE_URL}/payments/status`, {
+      method: 'GET',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Erreur statut abonnement');
+    return data;
   },
 };
 

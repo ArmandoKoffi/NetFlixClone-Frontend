@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Info, Plus, RefreshCw } from 'lucide-react';
+import { Play, Info, Plus } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { NetflixButton } from '@/components/ui/netflix-button';
 import { RootState } from '@/store/store';
@@ -12,13 +12,12 @@ import { moviesService } from '@/services/api';
 const Home = () => {
   const dispatch = useDispatch();
   const { movies, featuredMovie } = useSelector((state: RootState) => state.movies);
-  const [isResetting, setIsResetting] = useState(false);
 
   const loadMovies = async () => {
     try {
       const data = await moviesService.getMovies();
       // Adapter le format attendu par le slice si nécessaire
-      const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const API = import.meta.env.VITE_API_BASE_URL;
       const adapted = data.movies.map((m: any) => ({
         id: m.id,
         title: m.title,
@@ -35,31 +34,9 @@ const Home = () => {
     }
   };
 
-  const handleResetMovies = async () => {
-    setIsResetting(true);
-    try {
-      await moviesService.resetMovies();
-      await loadMovies();
-      alert('Catalogue réinitialisé avec les nouvelles correspondances !');
-    } catch (error) {
-      console.error('Erreur réinitialisation:', error);
-      alert('Erreur lors de la réinitialisation');
-    } finally {
-      setIsResetting(false);
-    }
-  };
-
   useEffect(() => {
     loadMovies();
   }, [dispatch]);
-
-  // Recharger automatiquement les films au montage du composant
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      loadMovies();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const getMoviesByGenre = (genre: string) => {
     return movies.filter(movie => movie.genre === genre);
@@ -75,24 +52,6 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      {/* Boutons de debug (temporaire pour développement) */}
-      <div className="fixed top-20 right-4 z-50 flex flex-col gap-2">
-        <button
-          onClick={handleResetMovies}
-          disabled={isResetting}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
-          {isResetting ? 'Réinitialisation...' : 'Reset Films'}
-        </button>
-        <button
-          onClick={loadMovies}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Recharger
-        </button>
-      </div>
       
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">

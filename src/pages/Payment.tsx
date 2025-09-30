@@ -60,7 +60,7 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
       }
 
       // Appeler notre backend avec la PaymentMethod créée
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/payments/subscribe`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/payments/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
