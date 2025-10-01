@@ -38,18 +38,26 @@ const SecureVideoPlayer = ({
     const video = videoRef.current;
     if (!video) return;
 
-    // IMPORTANT: S'assurer que l'audio n'est PAS muté
-    video.muted = false;
-    video.volume = 1;
+    // Pour l'autoplay, on doit commencer avec le son coupé
+    // Les navigateurs bloquent l'autoplay avec son
+    video.muted = true;
+    video.volume = 0;
 
     const handleCanPlay = () => {
       console.log('Video can play');
       setIsLoading(false);
       setDuration(video.duration);
+      
+      // Essayer de jouer automatiquement (mais avec son coupé)
+      video.play().catch(err => {
+        console.error('Autoplay blocked:', err);
+        // Si l'autoplay est bloqué, on attend que l'utilisateur clique
+        setIsPlaying(false);
+      });
     };
 
     const handlePlay = () => {
-      console.log('Video started playing automatically');
+      console.log('Video started playing');
       setIsPlaying(true);
     };
 
