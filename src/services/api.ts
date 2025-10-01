@@ -287,8 +287,9 @@ export const moviesService = {
       throw new Error(data.message || 'Erreur lors de la récupération de l\'URL de streaming');
     }
 
-    // Retourner l'URL complète avec le token sécurisé
-    return `${API_BASE_URL}${data.streamingUrl}`;
+    // En production, le backend retourne déjà l'URL complète vers Vercel
+    // Ne pas ajouter API_BASE_URL devant
+    return data.streamingUrl;
   },
 };
 
