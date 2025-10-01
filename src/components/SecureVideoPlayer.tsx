@@ -30,6 +30,7 @@ const SecureVideoPlayer = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [showUnmutePrompt, setShowUnmutePrompt] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -216,6 +217,29 @@ const SecureVideoPlayer = ({
         className="absolute inset-0 cursor-pointer"
         onClick={togglePlay}
       />
+
+      {/* Overlay pour indiquer d'activer le son */}
+      {showUnmutePrompt && isPlaying && isMuted && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+          <div className="text-center p-6 bg-black/80 rounded-lg max-w-md">
+            <VolumeX className="h-12 w-12 text-white mx-auto mb-4" />
+            <h3 className="text-white text-xl font-bold mb-2">Son coupé</h3>
+            <p className="text-gray-300 mb-4">
+              Cliquez sur l'icône du son dans les contrôles pour activer l'audio
+            </p>
+            <Button
+              onClick={() => {
+                toggleMute();
+                setShowUnmutePrompt(false);
+              }}
+              className="bg-netflix-red hover:bg-red-700 text-white"
+            >
+              <Volume2 className="h-4 w-4 mr-2" />
+              Activer le son
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Contrôles */}
       <div
