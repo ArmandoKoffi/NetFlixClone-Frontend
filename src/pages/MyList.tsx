@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface FavoriteMovie {
   _id: string;
   title: string;
-  image: string;
+  thumbnailUrl: string;
   year: number;
   rating: string;
   duration: string;
@@ -119,7 +119,7 @@ const MyList = () => {
                   <Link to={`/movie/${movie._id}`}>
                     <div className="relative aspect-video rounded-lg overflow-hidden bg-gradient-card">
                       <img
-                        src={movie.image}
+                        src={movie.thumbnailUrl}
                         alt={movie.title}
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         onError={(e) => {
