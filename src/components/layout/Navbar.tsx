@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
@@ -7,15 +7,35 @@ import { RootState } from '@/store/store';
 import { logout } from '@/store/slices/authSlice';
 import { NetflixButton } from '@/components/ui/netflix-button';
 import { useToast } from '@/hooks/use-toast';
+import { notificationsService } from '@/services/api';
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await notificationsService.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('Erreur lors de la récupération du compteur de notifications:', error);
+      }
+    };
+
+    if (user) {
+      fetchUnreadCount();
+      // Rafraîchir le compteur toutes les 30 secondes
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -74,7 +94,9 @@ export const Navbar = () => {
               <NetflixButton variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 {/* Badge de notification */}
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-netflix-red rounded-full animate-pulse"></div>
+                {unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-netflix-red rounded-full animate-pulse"></div>
+                )}
               </NetflixButton>
             </Link>
 

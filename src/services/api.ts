@@ -436,8 +436,163 @@ export const paymentService = {
   },
 };
 
+// Service pour les notifications
+export const notificationsService = {
+  async getNotifications() {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
+      method: 'GET',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la récupération des notifications');
+    }
+
+    return data.notifications;
+  },
+
+  async getUnreadCount() {
+    const token = authService.getToken();
+    if (!token) {
+      return 0;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/notifications/unread-count`, {
+        method: 'GET',
+        headers: {
+          ...apiConfig.headers,
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Erreur lors du comptage des notifications non lues:', data.message);
+        return 0;
+      }
+
+      return data.unreadCount;
+    } catch (error) {
+      console.error('Erreur lors du comptage des notifications non lues:', error);
+      return 0;
+    }
+  },
+
+  async markAsRead(notificationId: string) {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+      method: 'PUT',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors du marquage comme lu');
+    }
+
+    return data;
+  },
+
+  async markAllAsRead() {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
+      method: 'PUT',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors du marquage de toutes les notifications comme lues');
+    }
+
+    return data;
+  },
+
+  async createNotification(notificationData: {
+    type: 'subscription_renewal' | 'system' | 'promotion';
+    title: string;
+    message: string;
+    actionUrl?: string;
+    expiresInDays?: number;
+  }) {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
+      method: 'POST',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(notificationData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la création de la notification');
+    }
+
+    return data;
+  },
+
+  async deleteNotification(notificationId: string) {
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error('Authentification requise');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}`, {
+      method: 'DELETE',
+      headers: {
+        ...apiConfig.headers,
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de la suppression de la notification');
+    }
+
+    return data;
+  },
+};
+
 export default {
   auth: authService,
   movies: moviesService,
   payments: paymentService,
+  notifications: notificationsService,
 };

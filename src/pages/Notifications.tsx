@@ -7,6 +7,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { NetflixButton } from '@/components/ui/netflix-button';
 import { RootState } from '@/store/store';
 import { useToast } from '@/hooks/use-toast';
+import { notificationsService } from '@/services/api';
 
 interface Notification {
   _id: string;
@@ -32,38 +33,8 @@ const Notifications = () => {
   const loadNotifications = async () => {
     try {
       setLoading(true);
-      // Simuler le chargement des notifications
-      // Dans une vraie implémentation, on appellerait l'API
-      const mockNotifications: Notification[] = [
-        {
-          _id: '1',
-          type: 'subscription_renewal',
-          title: 'Renouvellement d\'abonnement',
-          message: 'Votre abonnement Premium se renouvelle dans 3 jours. Pensez à vérifier votre moyen de paiement.',
-          isRead: false,
-          createdAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-          actionUrl: '/profile'
-        },
-        {
-          _id: '2',
-          type: 'system',
-          title: 'Nouveautés disponibles',
-          message: 'Découvrez les nouveaux films et séries ajoutés cette semaine dans notre catalogue.',
-          isRead: true,
-          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          _id: '3',
-          type: 'promotion',
-          title: 'Offre spéciale',
-          message: 'Profitez de 30% de réduction sur votre prochain abonnement annuel !',
-          isRead: true,
-          createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
-      setNotifications(mockNotifications);
+      const notificationsData = await notificationsService.getNotifications();
+      setNotifications(notificationsData);
     } catch (error) {
       console.error('Erreur lors du chargement des notifications:', error);
       toast({
@@ -78,29 +49,39 @@ const Notifications = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
+      await notificationsService.markAsRead(notificationId);
       setNotifications(prev => 
         prev.map(notif => 
           notif._id === notificationId ? { ...notif, isRead: true } : notif
         )
       );
-      // Dans une vraie implémentation, on appellerait l'API pour marquer comme lu
     } catch (error) {
       console.error('Erreur lors du marquage comme lu:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de marquer la notification comme lue",
+        variant: "destructive",
+      });
     }
   };
 
   const markAllAsRead = async () => {
     try {
+      await notificationsService.markAllAsRead();
       setNotifications(prev => 
         prev.map(notif => ({ ...notif, isRead: true }))
       );
-      // Dans une vraie implémentation, on appellerait l'API
       toast({
         title: "Succès",
         description: "Toutes les notifications ont été marquées comme lues",
       });
     } catch (error) {
       console.error('Erreur lors du marquage de toutes les notifications:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de marquer toutes les notifications comme lues",
+        variant: "destructive",
+      });
     }
   };
 
