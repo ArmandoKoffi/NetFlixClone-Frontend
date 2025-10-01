@@ -20,6 +20,14 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Form state - moved before conditional return
+  const [email, setEmail] = useState(user?.email || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
   const handleLogout = () => {
     dispatch(logout());
     toast({
@@ -38,8 +46,9 @@ const Profile = () => {
       const result = await authService.getProfile();
       dispatch(setUser(result.user));
       toast({ title: 'Profil actualisé' });
-    } catch (e: any) {
-      toast({ title: 'Erreur', description: e?.message || 'Actualisation impossible', variant: 'destructive' });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Actualisation impossible';
+      toast({ title: 'Erreur', description: errorMessage, variant: 'destructive' });
     }
   };
 
@@ -48,24 +57,17 @@ const Profile = () => {
       const result = await paymentService.cancelSubscription();
       dispatch(cancelSubscriptionSuccess());
       toast({ title: 'Abonnement annulé', description: result.message });
-    } catch (e: any) {
-      toast({ title: 'Erreur', description: e?.message || 'Annulation impossible', variant: 'destructive' });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Annulation impossible';
+      toast({ title: 'Erreur', description: errorMessage, variant: 'destructive' });
     }
   };
-
-  // Form state
-  const [email, setEmail] = useState(user.email);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload: any = {};
+      const payload: { email?: string; currentPassword?: string; newPassword?: string } = {};
       if (email && email !== user.email) payload.email = email;
       if (newPassword) {
         payload.currentPassword = currentPassword;
@@ -81,8 +83,9 @@ const Profile = () => {
       toast({ title: 'Profil mis à jour', description: result.message });
       setCurrentPassword('');
       setNewPassword('');
-    } catch (e: any) {
-      toast({ title: 'Erreur', description: e?.message || 'Mise à jour impossible', variant: 'destructive' });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Mise à jour impossible';
+      toast({ title: 'Erreur', description: errorMessage, variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -129,28 +132,28 @@ const Profile = () => {
           </div>
 
           {/* Informations du compte */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <Card className="bg-gradient-card border-netflix-light-gray">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <User className="h-5 w-5 text-netflix-red" />
+                <CardTitle className="flex items-center gap-2 text-foreground text-base md:text-lg">
+                  <User className="h-4 w-4 md:h-5 md:w-5 text-netflix-red" />
                   Informations personnelles
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <div>
+              <CardContent className="space-y-3 md:space-y-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
                     <div className="text-sm text-muted-foreground">Email</div>
-                    <div className="text-foreground">{user.email}</div>
+                    <div className="text-foreground text-sm md:text-base truncate">{user.email}</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
                     <div className="text-sm text-muted-foreground">Membre depuis</div>
-                    <div className="text-foreground">
+                    <div className="text-foreground text-sm md:text-base">
                       {user.createdAt
                         ? new Date(user.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })
                         : '-'}
@@ -162,45 +165,47 @@ const Profile = () => {
 
             <Card className="bg-gradient-card border-netflix-light-gray">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <Crown className="h-5 w-5 text-netflix-red" />
+                <CardTitle className="flex items-center gap-2 text-foreground text-base md:text-lg">
+                  <Crown className="h-4 w-4 md:h-5 md:w-5 text-netflix-red" />
                   Abonnement
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 md:space-y-4">
                 {user.isSubscriptionActive ? (
                   <>
                     <div>
                       <div className="text-sm text-muted-foreground">Plan actuel</div>
-                      <div className="text-foreground font-medium">{user.subscription}</div>
+                      <div className="text-foreground font-medium text-sm md:text-base">{user.subscription}</div>
                     </div>
                     
                     <div>
                       <div className="text-sm text-muted-foreground">Prix mensuel</div>
-                      <div className="text-foreground font-medium">{user.subscription === 'premium' ? '15.99€' : user.subscription === 'basic' ? '9.99€' : '0€'}</div>
+                      <div className="text-foreground font-medium text-sm md:text-base">{user.subscription === 'premium' ? '15.99€' : user.subscription === 'basic' ? '9.99€' : '0€'}</div>
                     </div>
                     
                     <div>
                       <div className="text-sm text-muted-foreground">Prochaine facturation</div>
-                      <div className="text-foreground">{user.subscriptionExpires ? new Date(user.subscriptionExpires).toLocaleDateString() : '-'}</div>
+                      <div className="text-foreground text-sm md:text-base">{user.subscriptionExpires ? new Date(user.subscriptionExpires).toLocaleDateString() : '-'}</div>
                     </div>
 
-                    <div className="flex gap-2 pt-2">
-                      <NetflixButton variant="netflix" onClick={() => navigate('/payment')}>
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                      <NetflixButton variant="netflix" size="sm" className="w-full sm:w-auto justify-center" onClick={() => navigate('/payment')}>
                         Mettre à niveau / Renouveler
                       </NetflixButton>
-                      <NetflixButton variant="ghost" onClick={handleCancelSubscription}>
+                      <NetflixButton variant="ghost" size="sm" className="w-full sm:w-auto justify-center" onClick={handleCancelSubscription}>
                         Annuler l'abonnement
                       </NetflixButton>
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground mb-4">
+                  <div className="text-center py-3 md:py-4">
+                    <p className="text-muted-foreground text-sm md:text-base mb-3 md:mb-4">
                       Aucun abonnement actif
                     </p>
                     <NetflixButton
                       variant="netflix"
+                      size="sm"
+                      className="w-full sm:w-auto justify-center"
                       onClick={() => navigate('/payment')}
                     >
                       S'abonner maintenant

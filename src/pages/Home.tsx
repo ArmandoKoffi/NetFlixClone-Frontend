@@ -87,18 +87,18 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex gap-4"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
-              <Link to={`/watch/${featuredMovie.id}`}>
-                <NetflixButton variant="hero" size="xl">
-                  <Play className="h-6 w-6 mr-2" />
+              <Link to={`/watch/${featuredMovie.id}`} className="w-full sm:w-auto">
+                <NetflixButton variant="hero" size="xl" className="w-full sm:w-auto justify-center">
+                  <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Regarder
                 </NetflixButton>
               </Link>
               
-              <Link to={`/movie/${featuredMovie.id}`}>
-                <NetflixButton variant="secondary" size="xl">
-                  <Info className="h-6 w-6 mr-2" />
+              <Link to={`/movie/${featuredMovie.id}`} className="w-full sm:w-auto">
+                <NetflixButton variant="secondary" size="xl" className="w-full sm:w-auto justify-center">
+                  <Info className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Plus d'infos
                 </NetflixButton>
               </Link>
