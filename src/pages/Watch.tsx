@@ -111,7 +111,7 @@ const Watch = () => {
   const handleVideoEnded = () => {
     toast({
       title: "Film terminé",
-      description: "Merci d'avoir regardé ce film !",
+      description: "Merci d'avoir regardé ce film!",
     });
   };
 
