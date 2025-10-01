@@ -24,6 +24,7 @@ import Search from "./pages/Search";
 import Profile from "./pages/Profile";
 import MovieDetails from "./pages/MovieDetails";
 import Watch from "./pages/Watch";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -123,6 +124,11 @@ const AppRoutes = () => {
       <Route path="/watch/:id" element={
         <ProtectedRoute>
           <Watch />
+        </ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute>
+          <Notifications />
         </ProtectedRoute>
       } />
       

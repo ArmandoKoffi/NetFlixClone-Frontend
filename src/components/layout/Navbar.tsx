@@ -70,9 +70,13 @@ export const Navbar = () => {
             </Link>
 
             {/* Notifications */}
-            <NetflixButton variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </NetflixButton>
+            <Link to="/notifications">
+              <NetflixButton variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                {/* Badge de notification */}
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-netflix-red rounded-full animate-pulse"></div>
+              </NetflixButton>
+            </Link>
 
             {/* Profil */}
             <div className="relative">
@@ -91,8 +95,8 @@ export const Navbar = () => {
                   className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-card border border-netflix-light-gray"
                 >
                   <div className="p-3 border-b border-netflix-light-gray">
-                    <div className="font-medium text-foreground">{user?.name}</div>
-                    <div className="text-sm text-muted-foreground">{user?.email}</div>
+                    <div className="font-medium text-foreground">{user?.email}</div>
+                    <div className="text-sm text-muted-foreground">Abonné</div>
                   </div>
                   
                   <div className="p-1">
