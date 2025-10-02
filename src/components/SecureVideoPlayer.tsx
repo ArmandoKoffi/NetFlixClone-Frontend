@@ -169,12 +169,46 @@ const SecureVideoPlayer = ({
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Vérifier si le plein écran est déjà actif
+    if (document.fullscreenElement) {
+      // Sortir du plein écran
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ('webkitExitFullscreen' in document) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document as any).webkitExitFullscreen();
+      } else if ('msExitFullscreen' in document) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document as any).msExitFullscreen();
+      }
       setIsFullscreen(false);
+    } else {
+      // Entrer en plein écran
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if ('webkitRequestFullscreen' in container) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (container as any).webkitRequestFullscreen();
+      } else if ('msRequestFullscreen' in container) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (container as any).msRequestFullscreen();
+      } else if ('mozRequestFullScreen' in container) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (container as any).mozRequestFullScreen();
+      } else {
+        // Fallback pour les navigateurs mobiles qui ne supportent pas le plein écran
+        console.warn('Fullscreen not supported on this device');
+        // On peut essayer d'utiliser l'API Picture-in-Picture comme alternative
+        const video = videoRef.current;
+        if (video && 'webkitSupportsPresentationMode' in video) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (video as any).webkitSetPresentationMode('fullscreen');
+        }
+      }
+      setIsFullscreen(true);
     }
   };
 
