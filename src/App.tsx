@@ -25,6 +25,7 @@ import Profile from "./pages/Profile";
 import MovieDetails from "./pages/MovieDetails";
 import Watch from "./pages/Watch";
 import Notifications from "./pages/Notifications";
+import WatchHistory from "./pages/WatchHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -129,6 +130,11 @@ const AppRoutes = () => {
       <Route path="/notifications" element={
         <ProtectedRoute>
           <Notifications />
+        </ProtectedRoute>
+      } />
+      <Route path="/watch-history" element={
+        <ProtectedRoute>
+          <WatchHistory />
         </ProtectedRoute>
       } />
       
