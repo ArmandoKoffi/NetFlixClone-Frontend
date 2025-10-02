@@ -140,15 +140,18 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
       )}
 
       {/* Informations de test */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-        <div className="text-sm text-yellow-800">
-          <strong>Mode test Stripe :</strong> Utilisez les numéros de carte de test
-          <div className="mt-1 text-xs">
-            • Carte réussie: 4242 4242 4242 4242
-            <br />
-            • Carte 3D Secure: 4000 0025 0000 3155
-            <br />
-            • Carte échouée: 4000 0000 0000 9995
+      <div className="bg-green-50 border border-green-200 rounded-md p-3">
+        <div className="text-sm text-green-800">
+          <strong>Utilisez ces données pour souscrire à votre abonnement</strong>
+          <div className="mt-2 text-xs space-y-1">
+            <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242</div>
+            <div>• <strong>MM:</strong> 12</div>
+            <div>• <strong>AA:</strong> 50</div>
+            <div>• <strong>CVC:</strong> 562</div>
+            <div>• <strong>Code Postal:</strong> 23512</div>
+          </div>
+          <div className="mt-2 text-xs font-medium">
+            Ensuite cliquer sur le bouton s'abonner et profiter du meilleur du streaming.
           </div>
         </div>
       </div>
