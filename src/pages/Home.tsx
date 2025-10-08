@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, Info, Plus, LogIn, UserPlus } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 import { NetflixButton } from "@/components/ui/netflix-button";
 import { RootState } from "@/store/store";
 import { setMovies } from "@/store/slices/moviesSlice";
@@ -102,45 +103,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navbar pour utilisateurs non connectés */}
-      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-background/90 to-transparent backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="text-2xl font-bold text-netflix-red"
-              >
-                NETFLIX
-              </motion.div>
-            </Link>
-
-            {/* Boutons de connexion/inscription */}
-            {!isAuthenticated && (
-              <div className="flex items-center space-x-4">
-                <NetflixButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("/login")}
-                  className="text-foreground hover:text-netflix-red"
-                >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Connexion
-                </NetflixButton>
-                <NetflixButton
-                  variant="netflix"
-                  size="sm"
-                  onClick={() => navigate("/register")}
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  S'inscrire
-                </NetflixButton>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+      {/* Utiliser la vraie navbar */}
+      <Navbar />
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
@@ -255,7 +219,7 @@ const Home = () => {
                               {movie.title}
                             </h3>
                             <div className="flex items-center gap-2 text-xs text-white/80">
-                              <span>{movie.year.toString()}</span>
+                              <span>{movie.year}</span>
                               <span>•</span>
                               <span>{movie.rating}</span>
                               <span>•</span>
