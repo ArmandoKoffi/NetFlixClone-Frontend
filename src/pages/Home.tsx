@@ -1,21 +1,25 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Play, Info, Plus, LogIn, UserPlus } from 'lucide-react';
-import { NetflixButton } from '@/components/ui/netflix-button';
-import { RootState } from '@/store/store';
-import { setMovies } from '@/store/slices/moviesSlice';
-import { moviesService } from '@/services/api';
-import { useToast } from '@/hooks/use-toast';
-import { useAuthCheck } from '@/hooks/useAuth';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Play, Info, Plus, LogIn, UserPlus } from "lucide-react";
+import { NetflixButton } from "@/components/ui/netflix-button";
+import { RootState } from "@/store/store";
+import { setMovies } from "@/store/slices/moviesSlice";
+import { moviesService } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+import { useAuthCheck } from "@/hooks/useAuth";
 
 const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { movies, featuredMovie } = useSelector((state: RootState) => state.movies);
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { movies, featuredMovie } = useSelector(
+    (state: RootState) => state.movies
+  );
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
   const { isAuthenticated: authChecked } = useAuthCheck();
 
   const loadMovies = async () => {
@@ -23,19 +27,32 @@ const Home = () => {
       const data = await moviesService.getMovies();
       // Adapter le format attendu par le slice si nécessaire
       const API = import.meta.env.VITE_API_BASE_URL;
-      const adapted = data.movies.map((m: { id: string; title: string; description: string; genre: string; year: number; rating: string; duration: string; thumbnailUrl?: string }) => ({
-        id: m.id,
-        title: m.title,
-        description: m.description,
-        genre: m.genre,
-        year: m.year,
-        rating: m.rating,
-        duration: m.duration,
-        image: String(m.thumbnailUrl || '').startsWith('http') ? m.thumbnailUrl : `${API}${m.thumbnailUrl || ''}`,
-      }));
+      const adapted = data.movies.map(
+        (m: {
+          id: string;
+          title: string;
+          description: string;
+          genre: string;
+          year: number;
+          rating: string;
+          duration: string;
+          thumbnailUrl?: string;
+        }) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          genre: m.genre,
+          year: m.year,
+          rating: m.rating,
+          duration: m.duration,
+          image: String(m.thumbnailUrl || "").startsWith("http")
+            ? m.thumbnailUrl
+            : `${API}${m.thumbnailUrl || ""}`,
+        })
+      );
       dispatch(setMovies(adapted));
     } catch (e) {
-      console.error('Erreur chargement films:', e);
+      console.error("Erreur chargement films:", e);
     }
   };
 
@@ -44,31 +61,33 @@ const Home = () => {
   }, [dispatch]);
 
   const getMoviesByGenre = (genre: string) => {
-    return movies.filter(movie => movie.genre === genre);
+    return movies.filter((movie) => movie.genre === genre);
   };
 
-  const genres = [...new Set(movies.map(movie => movie.genre))];
+  const genres = [...new Set(movies.map((movie) => movie.genre))];
 
   const handleMovieClick = (movieId: string) => {
     if (!isAuthenticated) {
       toast({
         title: "Connexion requise",
-        description: "Veuillez vous connecter ou vous inscrire pour regarder ce film.",
+        description:
+          "Pour regarder ce film, veuillez cliquer sur le bouton 'Connexion' ou 'S'inscrire' en haut à droite de la page.",
         variant: "destructive",
       });
       return;
     }
-    
-    if (!user?.isSubscriptionActive || user?.subscription === 'free') {
+
+    if (!user?.isSubscriptionActive || user?.subscription === "free") {
       toast({
         title: "Abonnement requis",
-        description: "Vous devez avoir un abonnement actif pour regarder ce film.",
+        description:
+          "Vous devez avoir un abonnement actif pour regarder ce film. Veuillez souscrire à un abonnement.",
         variant: "destructive",
       });
-      navigate('/payment');
+      navigate("/payment");
       return;
     }
-    
+
     navigate(`/watch/${movieId}`);
   };
 
@@ -103,7 +122,7 @@ const Home = () => {
                 <NetflixButton
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
                   className="text-foreground hover:text-netflix-red"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
@@ -112,7 +131,7 @@ const Home = () => {
                 <NetflixButton
                   variant="netflix"
                   size="sm"
-                  onClick={() => navigate('/register')}
+                  onClick={() => navigate("/register")}
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   S'inscrire
@@ -122,17 +141,17 @@ const Home = () => {
           </div>
         </div>
       </nav>
-      
+
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('${featuredMovie.image}')`,
           }}
         />
         <div className="absolute inset-0 bg-gradient-overlay" />
-        
+
         <div className="relative z-10 container mx-auto px-4">
           <div className="max-w-2xl">
             <motion.h1
@@ -143,7 +162,7 @@ const Home = () => {
             >
               {featuredMovie.title}
             </motion.h1>
-            
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -152,25 +171,36 @@ const Home = () => {
             >
               {featuredMovie.description}
             </motion.p>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
-              <button 
+              <button
                 onClick={handleWatchFeatured}
                 className="w-full sm:w-auto"
               >
-                <NetflixButton variant="hero" size="xl" className="w-full sm:w-auto justify-center">
+                <NetflixButton
+                  variant="hero"
+                  size="xl"
+                  className="w-full sm:w-auto justify-center"
+                >
                   <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Regarder
                 </NetflixButton>
               </button>
-              
-              <Link to={`/movie/${featuredMovie.id}`} className="w-full sm:w-auto">
-                <NetflixButton variant="secondary" size="xl" className="w-full sm:w-auto justify-center">
+
+              <Link
+                to={`/movie/${featuredMovie.id}`}
+                className="w-full sm:w-auto"
+              >
+                <NetflixButton
+                  variant="secondary"
+                  size="xl"
+                  className="w-full sm:w-auto justify-center"
+                >
                   <Info className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Plus d'infos
                 </NetflixButton>
@@ -195,7 +225,7 @@ const Home = () => {
               className="container mx-auto px-4"
             >
               <h2 className="text-2xl font-bold text-white mb-6">{genre}</h2>
-              
+
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                 {genreMovies.map((movie, index) => (
                   <motion.div
@@ -214,26 +244,31 @@ const Home = () => {
                           className="w-full h-full object-cover transition-transform group-hover:scale-110"
                           onContextMenu={(e) => e.preventDefault()}
                           onError={(e) => {
-                            e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDI1NiAxNDQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMTQ0IiBmaWxsPSIjMTExMTExIi8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjY2NjY2IiBmb250LXNpemU9IjE0Ij5JbWFnZSBub24gZGlzcG9uaWJsZTwvdGV4dD4KPC9zdmc+';
+                            e.currentTarget.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDI1NiAxNDQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMTQ0IiBmaWxsPSIjMTExMTExIi8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjY2NjY2IiBmb250LXNpemU9IjE0Ij5JbWFnZSBub24gZGlzcG9uaWJsZTwvdGV4dD4KPC9zdmc+";
                           }}
                         />
-                        
+
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                           <div className="absolute bottom-0 left-0 right-0 p-4">
                             <h3 className="font-semibold text-white text-sm mb-1">
                               {movie.title}
                             </h3>
                             <div className="flex items-center gap-2 text-xs text-white/80">
-                              <span>{movie.year}</span>
+                              <span>{movie.year.toString()}</span>
                               <span>•</span>
                               <span>{movie.rating}</span>
                               <span>•</span>
                               <span>{movie.duration}</span>
                             </div>
                           </div>
-                          
+
                           <div className="absolute top-2 right-2">
-                            <NetflixButton variant="ghost" size="icon" className="h-8 w-8">
+                            <NetflixButton
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <Plus className="h-4 w-4" />
                             </NetflixButton>
                           </div>

@@ -9,57 +9,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { updateSubscription } from '@/store/slices/authSlice';
 
-// Stripe Elements
+// Stripe Elements (gardé pour la configuration)
 import { loadStripe } from '@stripe/stripe-js';
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 
 // Configuration Stripe (clé publique de test)
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51SBc7MPbdMUVanRJrA16CGq2vHv6VtUkdfMrbCcUOSRaKumenBxFlbxBSYrmcWAf0sNqaXCCvbY9CQTM3bP43MKG00E5UXhZcA');
 
-// Composant de formulaire de paiement Stripe
-const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () => void }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+// Composant de paiement automatique
+const AutoPaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () => void }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!stripe || !elements) {
-      return;
-    }
-
+  const handleSubscribe = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Créer une vraie PaymentMethod via Stripe Elements
-      const cardElement = elements.getElement(CardElement);
-      if (!cardElement) {
-        throw new Error('Champ de carte introuvable');
-      }
+      // Utiliser un token de paiement Stripe pré-configuré pour les tests
+      // Dans un environnement de production, vous utiliseriez un vrai token
+      const testPaymentMethodId = 'pm_card_visa'; // Token de test Stripe pour carte Visa
 
-      const pmResult = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-        billing_details: {
-          // Optionnel: vous pouvez demander ces infos dans le formulaire
-          email: undefined,
-        },
-      });
-
-      if (pmResult.error || !pmResult.paymentMethod) {
-        throw new Error(pmResult.error?.message || 'Impossible de créer la méthode de paiement');
-      }
-
-      // Appeler notre backend avec la PaymentMethod créée
+      // Appeler notre backend avec le token de paiement pré-configuré
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/payments/subscribe`, {
         method: 'POST',
         headers: {
@@ -68,7 +40,7 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
         },
         body: JSON.stringify({
           plan,
-          paymentMethodId: pmResult.paymentMethod.id,
+          paymentMethodId: testPaymentMethodId,
         })
       });
 
@@ -78,18 +50,9 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
         throw new Error(data.message || 'Erreur lors de la création de l\'abonnement');
       }
 
-      // Si Stripe nécessite une action supplémentaire (3D Secure)
-      if (data.requiresAction && data.clientSecret) {
-        const { error: stripeError } = await stripe.confirmCardPayment(data.clientSecret);
-        
-        if (stripeError) {
-          throw new Error(stripeError.message || 'Erreur lors de la confirmation du paiement');
-        }
-      }
-
       toast({
         title: "Paiement réussi !",
-        description: data.message,
+        description: "Votre abonnement a été activé avec succès.",
       });
 
       onSuccess();
@@ -108,26 +71,20 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Champ de carte Stripe */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">
-          Informations de carte
-        </label>
-        <div className="p-3 border border-netflix-light-gray rounded-md bg-white">
-          <CardElement
-            options={{
-              style: {
-                base: {
-                  fontSize: '16px',
-                  color: '#424770',
-                  '::placeholder': {
-                    color: '#aab7c4',
-                  },
-                },
-              },
-            }}
-          />
+    <div className="space-y-4">
+      {/* Informations de carte pré-remplies */}
+      <div className="bg-green-50 border border-green-200 rounded-md p-4">
+        <div className="text-sm text-green-800">
+          <strong>✅ Carte de test automatiquement configurée !</strong>
+          <div className="mt-2 text-xs space-y-1">
+            <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242</div>
+            <div>• <strong>Date d'expiration:</strong> 12/50</div>
+            <div>• <strong>CVC:</strong> 562</div>
+            <div>• <strong>Code Postal:</strong> 23512</div>
+          </div>
+          <div className="mt-2 text-xs font-medium">
+            Tous les champs sont déjà remplis. Cliquez simplement sur "S'abonner" !
+          </div>
         </div>
       </div>
 
@@ -139,32 +96,16 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
         </div>
       )}
 
-        {/* Informations de test pré-remplies */}
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-          <div className="text-sm text-blue-800">
-            <strong>🎉 Formulaire pré-rempli avec le compte test Stripe !</strong>
-            <div className="mt-2 text-xs space-y-1">
-              <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242 (déjà configuré)</div>
-              <div>• <strong>Date d'expiration:</strong> 12/50 (déjà configuré)</div>
-              <div>• <strong>CVC:</strong> 562 (déjà configuré)</div>
-              <div>• <strong>Code Postal:</strong> 23512 (déjà configuré)</div>
-            </div>
-            <div className="mt-2 text-xs font-medium">
-              Il vous suffit de cliquer sur le bouton "S'abonner" pour activer votre abonnement et profiter du meilleur du streaming !
-            </div>
-          </div>
-        </div>
-
       <NetflixButton
-        type="submit"
+        onClick={handleSubscribe}
         variant="netflix"
         size="lg"
-        disabled={!stripe || isLoading}
+        disabled={isLoading}
         className="w-full"
       >
-        {isLoading ? "Traitement..." : `S'abonner - ${plan === 'basic' ? '9.99€' : '15.99€'}/mois`}
+        {isLoading ? "Activation en cours..." : `S'abonner - ${plan === 'basic' ? '9.99€' : '15.99€'}/mois`}
       </NetflixButton>
-    </form>
+    </div>
   );
 };
 
@@ -282,10 +223,8 @@ const Payment = () => {
           </CardContent>
         </Card>
 
-        {/* Formulaire de paiement Stripe */}
-        <Elements stripe={stripePromise}>
-          <StripePaymentForm plan={selectedPlan} onSuccess={handlePaymentSuccess} />
-        </Elements>
+        {/* Formulaire de paiement automatique */}
+        <AutoPaymentForm plan={selectedPlan} onSuccess={handlePaymentSuccess} />
 
         <div className="text-center text-xs text-muted-foreground">
           <div className="flex items-center justify-center gap-2 mb-2">
