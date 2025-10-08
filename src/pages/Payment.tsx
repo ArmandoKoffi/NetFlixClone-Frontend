@@ -27,12 +27,11 @@ const AutoPaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () => v
     setError(null);
 
     try {
-      // Utiliser un token de paiement Stripe pré-configuré pour les tests
-      // Dans un environnement de production, vous utiliseriez un vrai token
-      const testPaymentMethodId = 'pm_card_visa'; // Token de test Stripe pour carte Visa
-
-      // Appeler notre backend avec le token de paiement pré-configuré
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/payments/subscribe`, {
+      // Pour le mode test, nous allons simuler un paiement réussi
+      // En production, vous utiliseriez Stripe Elements pour collecter les informations de carte
+      
+      // Appeler notre backend de test pour créer l'abonnement
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/test-payments/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +39,7 @@ const AutoPaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () => v
         },
         body: JSON.stringify({
           plan,
-          paymentMethodId: testPaymentMethodId,
+          // Mode test - pas besoin de paymentMethodId
         })
       });
 
