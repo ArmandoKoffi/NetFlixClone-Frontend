@@ -1,24 +1,29 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Info, Plus } from 'lucide-react';
-import { Navbar } from '@/components/layout/Navbar';
+import { Play, Info, Plus, LogIn, UserPlus } from 'lucide-react';
 import { NetflixButton } from '@/components/ui/netflix-button';
 import { RootState } from '@/store/store';
 import { setMovies } from '@/store/slices/moviesSlice';
 import { moviesService } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+import { useAuthCheck } from '@/hooks/useAuth';
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const { movies, featuredMovie } = useSelector((state: RootState) => state.movies);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated: authChecked } = useAuthCheck();
 
   const loadMovies = async () => {
     try {
       const data = await moviesService.getMovies();
       // Adapter le format attendu par le slice si nécessaire
       const API = import.meta.env.VITE_API_BASE_URL;
-      const adapted = data.movies.map((m: any) => ({
+      const adapted = data.movies.map((m: { id: string; title: string; description: string; genre: string; year: number; rating: string; duration: string; thumbnailUrl?: string }) => ({
         id: m.id,
         title: m.title,
         description: m.description,
@@ -44,14 +49,79 @@ const Home = () => {
 
   const genres = [...new Set(movies.map(movie => movie.genre))];
 
+  const handleMovieClick = (movieId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Connexion requise",
+        description: "Veuillez vous connecter ou vous inscrire pour regarder ce film.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!user?.isSubscriptionActive || user?.subscription === 'free') {
+      toast({
+        title: "Abonnement requis",
+        description: "Vous devez avoir un abonnement actif pour regarder ce film.",
+        variant: "destructive",
+      });
+      navigate('/payment');
+      return;
+    }
+    
+    navigate(`/watch/${movieId}`);
+  };
+
+  const handleWatchFeatured = () => {
+    if (!featuredMovie) return;
+    handleMovieClick(featuredMovie.id);
+  };
+
   if (!featuredMovie) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      
+      {/* Navbar pour utilisateurs non connectés */}
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-background/90 to-transparent backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="text-2xl font-bold text-netflix-red"
+              >
+                NETFLIX
+              </motion.div>
+            </Link>
+
+            {/* Boutons de connexion/inscription */}
+            {!isAuthenticated && (
+              <div className="flex items-center space-x-4">
+                <NetflixButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/login')}
+                  className="text-foreground hover:text-netflix-red"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Connexion
+                </NetflixButton>
+                <NetflixButton
+                  variant="netflix"
+                  size="sm"
+                  onClick={() => navigate('/register')}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  S'inscrire
+                </NetflixButton>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
       
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
@@ -89,12 +159,15 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
-              <Link to={`/watch/${featuredMovie.id}`} className="w-full sm:w-auto">
+              <button 
+                onClick={handleWatchFeatured}
+                className="w-full sm:w-auto"
+              >
                 <NetflixButton variant="hero" size="xl" className="w-full sm:w-auto justify-center">
                   <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Regarder
                 </NetflixButton>
-              </Link>
+              </button>
               
               <Link to={`/movie/${featuredMovie.id}`} className="w-full sm:w-auto">
                 <NetflixButton variant="secondary" size="xl" className="w-full sm:w-auto justify-center">

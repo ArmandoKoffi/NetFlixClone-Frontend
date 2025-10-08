@@ -139,22 +139,21 @@ const StripePaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () =>
         </div>
       )}
 
-      {/* Informations de test */}
-      <div className="bg-green-50 border border-green-200 rounded-md p-3">
-        <div className="text-sm text-green-800">
-          <strong>Utilisez ces données pour souscrire à votre abonnement</strong>
-          <div className="mt-2 text-xs space-y-1">
-            <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242</div>
-            <div>• <strong>MM:</strong> 12</div>
-            <div>• <strong>AA:</strong> 50</div>
-            <div>• <strong>CVC:</strong> 562</div>
-            <div>• <strong>Code Postal:</strong> 23512</div>
-          </div>
-          <div className="mt-2 text-xs font-medium">
-            Ensuite cliquer sur le bouton s'abonner et profiter du meilleur du streaming.
+        {/* Informations de test pré-remplies */}
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+          <div className="text-sm text-blue-800">
+            <strong>🎉 Formulaire pré-rempli avec le compte test Stripe !</strong>
+            <div className="mt-2 text-xs space-y-1">
+              <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242 (déjà configuré)</div>
+              <div>• <strong>Date d'expiration:</strong> 12/50 (déjà configuré)</div>
+              <div>• <strong>CVC:</strong> 562 (déjà configuré)</div>
+              <div>• <strong>Code Postal:</strong> 23512 (déjà configuré)</div>
+            </div>
+            <div className="mt-2 text-xs font-medium">
+              Il vous suffit de cliquer sur le bouton "S'abonner" pour activer votre abonnement et profiter du meilleur du streaming !
+            </div>
           </div>
         </div>
-      </div>
 
       <NetflixButton
         type="submit"

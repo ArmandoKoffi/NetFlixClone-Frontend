@@ -67,7 +67,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
       
       {/* Routes publiques (redirigent si connecté) */}
       <Route path="/login" element={
@@ -86,15 +86,13 @@ const AppRoutes = () => {
         </PublicRoute>
       } />
       
+      {/* Route Home accessible sans authentification */}
+      <Route path="/home" element={<Home />} />
+      
       {/* Routes protégées (nécessitent une authentification) */}
       <Route path="/payment" element={
         <ProtectedRoute>
           <Payment />
-        </ProtectedRoute>
-      } />
-      <Route path="/home" element={
-        <ProtectedRoute>
-          <Home />
         </ProtectedRoute>
       } />
       <Route path="/browse" element={

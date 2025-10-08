@@ -51,12 +51,19 @@ const Register = () => {
     try {
       const response = await authService.register(formData.email, formData.password);
       
-      // Ne plus connecter automatiquement. Rediriger vers /login avec email pré-rempli
+      // Connecter automatiquement l'utilisateur après l'inscription
+      dispatch(loginSuccess({
+        user: response.user,
+        token: response.token
+      }));
+      
       toast({
         title: "Inscription réussie !",
-        description: "Veuillez vous connecter pour poursuivre.",
+        description: "Redirection vers la page d'abonnement...",
       });
-      navigate('/login', { state: { prefillEmail: response.user.email } });
+      
+      // Rediriger directement vers la page de paiement pour l'abonnement
+      navigate('/payment', { state: { newUser: true } });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue lors de l'inscription";
       toast({
