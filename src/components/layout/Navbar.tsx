@@ -50,7 +50,6 @@ export const Navbar = () => {
     { name: 'Accueil', path: '/home' },
     { name: 'Parcourir', path: '/browse' },
     { name: 'Ma liste', path: '/my-list' },
-    { name: 'Rechercher', path: '/search' },
   ];
 
   return (

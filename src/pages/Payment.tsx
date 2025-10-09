@@ -71,22 +71,6 @@ const AutoPaymentForm = ({ plan, onSuccess }: { plan: string; onSuccess: () => v
 
   return (
     <div className="space-y-4">
-      {/* Informations de carte pré-remplies */}
-      <div className="bg-green-50 border border-green-200 rounded-md p-4">
-        <div className="text-sm text-green-800">
-          <strong>✅ Carte de test automatiquement configurée !</strong>
-          <div className="mt-2 text-xs space-y-1">
-            <div>• <strong>Numéro de carte:</strong> 4242 4242 4242 4242</div>
-            <div>• <strong>Date d'expiration:</strong> 12/50</div>
-            <div>• <strong>CVC:</strong> 562</div>
-            <div>• <strong>Code Postal:</strong> 23512</div>
-          </div>
-          <div className="mt-2 text-xs font-medium">
-            Tous les champs sont déjà remplis. Cliquez simplement sur "S'abonner" !
-          </div>
-        </div>
-      </div>
-
       {/* Message d'erreur */}
       {error && (
         <div className="flex items-center gap-2 text-red-500 text-sm">
