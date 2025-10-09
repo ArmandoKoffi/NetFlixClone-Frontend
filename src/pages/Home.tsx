@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, Info, Plus, LogIn, UserPlus } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+import { MainNavbar } from "@/components/layout/MainNavbar";
 import { NetflixButton } from "@/components/ui/netflix-button";
 import { RootState } from "@/store/store";
 import { setMovies } from "@/store/slices/moviesSlice";
@@ -103,8 +103,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Utiliser la vraie navbar */}
-      <Navbar />
+      {/* Utiliser la navbar principale qui choisit automatiquement */}
+      <MainNavbar />
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
