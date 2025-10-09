@@ -53,8 +53,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Composant pour les routes publiques (rediriger si déjà connecté)
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthCheck();
+  const { user } = useSelector((state: RootState) => state.auth);
   
   if (isAuthenticated) {
+    // Si l'utilisateur n'a pas d'abonnement actif, rediriger vers la page de paiement
+    const requiresPayment = !user?.isSubscriptionActive || user?.subscription === "free";
+    if (requiresPayment) {
+      return <Navigate to="/payment" replace />;
+    }
+    // Sinon, rediriger vers la page d'accueil
     return <Navigate to="/home" replace />;
   }
   
