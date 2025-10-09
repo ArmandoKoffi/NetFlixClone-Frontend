@@ -69,12 +69,8 @@ const Home = () => {
 
   const handleMovieClick = (movieId: string) => {
     if (!isAuthenticated) {
-      toast({
-        title: "Connexion requise",
-        description:
-          "Pour regarder ce film, veuillez cliquer sur le bouton 'Connexion' ou 'S'inscrire' en haut à droite de la page.",
-        variant: "destructive",
-      });
+      // Rediriger directement vers la page de connexion
+      navigate("/login");
       return;
     }
 
@@ -90,6 +86,15 @@ const Home = () => {
     }
 
     navigate(`/watch/${movieId}`);
+  };
+
+  const handleMovieDetailsClick = (movieId: string) => {
+    if (!isAuthenticated) {
+      // Rediriger directement vers la page de connexion
+      navigate("/login");
+      return;
+    }
+    navigate(`/movie/${movieId}`);
   };
 
   const handleWatchFeatured = () => {
@@ -156,8 +161,8 @@ const Home = () => {
                 </NetflixButton>
               </button>
 
-              <Link
-                to={`/movie/${featuredMovie.id}`}
+              <button
+                onClick={() => handleMovieDetailsClick(featuredMovie.id)}
                 className="w-full sm:w-auto"
               >
                 <NetflixButton
@@ -168,7 +173,7 @@ const Home = () => {
                   <Info className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                   Plus d'infos
                 </NetflixButton>
-              </Link>
+              </button>
             </motion.div>
           </div>
         </div>
@@ -200,7 +205,10 @@ const Home = () => {
                     whileHover={{ scale: 1.05 }}
                     className="flex-shrink-0 group"
                   >
-                    <Link to={`/movie/${movie.id}`}>
+                    <button
+                      onClick={() => handleMovieDetailsClick(movie.id)}
+                      className="w-full text-left"
+                    >
                       <div className="relative w-64 h-36 rounded-lg overflow-hidden bg-gradient-card">
                         <img
                           src={movie.image}
@@ -238,7 +246,7 @@ const Home = () => {
                           </div>
                         </div>
                       </div>
-                    </Link>
+                    </button>
                   </motion.div>
                 ))}
               </div>
