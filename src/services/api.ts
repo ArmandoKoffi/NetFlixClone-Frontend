@@ -40,184 +40,157 @@ const handleError = (
 export const authService = {
   // Inscription
   async register(email: string, password: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: apiConfig.headers,
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: apiConfig.headers,
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur lors de l'inscription");
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error(data.message || "Erreur lors de l'inscription");
     }
+
+    return data;
   },
+
   // Mise à jour du profil (email / mot de passe)
   async updateProfile(payload: {
     email?: string;
     currentPassword?: string;
     newPassword?: string;
   }) {
-    try {
-      const token = localStorage.getItem("netflix_token");
-      if (!token) throw new Error("Token manquant");
+    const token = localStorage.getItem("netflix_token");
+    if (!token) throw new Error("Token manquant");
 
-      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-        method: "PUT",
-        headers: {
-          ...apiConfig.headers,
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: "PUT",
+      headers: {
+        ...apiConfig.headers,
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-      const data = await response.json();
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Session expirée ou token invalide
-          localStorage.removeItem("netflix_token");
-          throw new Error("Session expirée. Veuillez vous reconnecter.");
-        }
-        throw new Error(
-          data.message || "Erreur lors de la mise à jour du profil"
-        );
+    const data = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Session expirée ou token invalide
+        localStorage.removeItem("netflix_token");
+        throw new Error("Session expirée. Veuillez vous reconnecter.");
       }
-      return data;
-    } catch (error) {
-      throw error;
+      throw new Error(
+        data.message || "Erreur lors de la mise à jour du profil"
+      );
     }
+    return data;
   },
 
   // Connexion
   async login(email: string, password: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: apiConfig.headers,
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: apiConfig.headers,
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Email ou mot de passe incorrect");
-      }
-
-      // Sauvegarder le token dans le localStorage
-      if (data.token) {
-        localStorage.setItem("netflix_token", data.token);
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error(data.message || "Email ou mot de passe incorrect");
     }
+
+    // Sauvegarder le token dans le localStorage
+    if (data.token) {
+      localStorage.setItem("netflix_token", data.token);
+    }
+
+    return data;
   },
 
   // Mot de passe oublié
   async forgotPassword(email: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: apiConfig.headers,
-        body: JSON.stringify({ email }),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: apiConfig.headers,
+      body: JSON.stringify({ email }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Erreur lors de la demande de réinitialisation"
-        );
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Erreur lors de la demande de réinitialisation"
+      );
     }
+
+    return data;
   },
 
   // Réinitialisation du mot de passe
   async resetPassword(token: string, newPassword: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
-        method: "POST",
-        headers: apiConfig.headers,
-        body: JSON.stringify({ token, newPassword }),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: apiConfig.headers,
+      body: JSON.stringify({ token, newPassword }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur lors de la réinitialisation");
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error(data.message || "Erreur lors de la réinitialisation");
     }
+
+    return data;
   },
 
   // Vérification d'email
   async verifyEmail(token: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
-        method: "POST",
-        headers: apiConfig.headers,
-        body: JSON.stringify({ token }),
-      });
+    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+      method: "POST",
+      headers: apiConfig.headers,
+      body: JSON.stringify({ token }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur lors de la vérification");
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error(data.message || "Erreur lors de la vérification");
     }
+
+    return data;
   },
 
   // Récupération du profil utilisateur
   async getProfile() {
-    try {
-      const token = localStorage.getItem("netflix_token");
+    const token = localStorage.getItem("netflix_token");
 
-      if (!token) {
-        throw new Error("Token manquant");
-      }
-
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        method: "GET",
-        headers: {
-          ...apiConfig.headers,
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Si le token est invalide, le supprimer
-        if (response.status === 401) {
-          localStorage.removeItem("netflix_token");
-        }
-        throw new Error(
-          data.message || "Erreur lors de la récupération du profil"
-        );
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
+    if (!token) {
+      throw new Error("Token manquant");
     }
+
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: "GET",
+      headers: {
+        ...apiConfig.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Si le token est invalide, le supprimer
+      if (response.status === 401) {
+        localStorage.removeItem("netflix_token");
+      }
+      throw new Error(
+        data.message || "Erreur lors de la récupération du profil"
+      );
+    }
+
+    return data;
   },
 
   // Déconnexion
